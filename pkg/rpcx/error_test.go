@@ -1,104 +1,107 @@
 package rpcx
 
 import (
+	"errors"
 	"fmt"
+	"github.com/bufbuild/connect-go"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestErrors(t *testing.T) {
 	tests := []struct {
-		err   error
-		code  ErrorCode
+		err   *connect.Error
+		code  connect.Code
 		check func(err error) bool
 	}{
 		{
 			err:   CanceledError("some %s", "message"),
-			code:  ErrorCodeCanceled,
+			code:  connect.CodeCanceled,
 			check: IsCanceledError,
 		},
 		{
 			err:   UnknownError("some %s", "message"),
-			code:  ErrorCodeUnknown,
+			code:  connect.CodeUnknown,
 			check: IsUnknownError,
 		},
 		{
 			err:   InvalidArgumentError("some %s", "message"),
-			code:  ErrorCodeInvalidArgument,
+			code:  connect.CodeInvalidArgument,
 			check: IsInvalidArgumentError,
 		},
 		{
 			err:   DeadlineExceededError("some %s", "message"),
-			code:  ErrorCodeDeadlineExceeded,
+			code:  connect.CodeDeadlineExceeded,
 			check: IsDeadlineExceededError,
 		},
 		{
 			err:   NotFoundError("some %s", "message"),
-			code:  ErrorCodeNotFound,
+			code:  connect.CodeNotFound,
 			check: IsNotFoundError,
 		},
 		{
 			err:   AlreadyExistsError("some %s", "message"),
-			code:  ErrorCodeAlreadyExists,
+			code:  connect.CodeAlreadyExists,
 			check: IsAlreadyExistsError,
 		},
 		{
 			err:   PermissionDeniedError("some %s", "message"),
-			code:  ErrorCodePermissionDenied,
+			code:  connect.CodePermissionDenied,
 			check: IsPermissionDeniedError,
 		},
 		{
 			err:   ResourceExhaustedError("some %s", "message"),
-			code:  ErrorCodeResourceExhausted,
+			code:  connect.CodeResourceExhausted,
 			check: IsResourceExhaustedError,
 		},
 		{
 			err:   FailedPreconditionError("some %s", "message"),
-			code:  ErrorCodeFailedPrecondition,
+			code:  connect.CodeFailedPrecondition,
 			check: IsFailedPreconditionError,
 		},
 		{
 			err:   AbortedError("some %s", "message"),
-			code:  ErrorCodeAborted,
+			code:  connect.CodeAborted,
 			check: IsAbortedError,
 		},
 		{
 			err:   OutOfRangeError("some %s", "message"),
-			code:  ErrorCodeOutOfRange,
+			code:  connect.CodeOutOfRange,
 			check: IsOutOfRangeError,
 		},
 		{
 			err:   UnimplementedError("some %s", "message"),
-			code:  ErrorCodeUnimplemented,
+			code:  connect.CodeUnimplemented,
 			check: IsUnimplementedError,
 		},
 		{
 			err:   InternalError("some %s", "message"),
-			code:  ErrorCodeInternal,
+			code:  connect.CodeInternal,
 			check: IsInternalError,
 		},
 		{
 			err:   UnavailableError("some %s", "message"),
-			code:  ErrorCodeUnavailable,
+			code:  connect.CodeUnavailable,
 			check: IsUnavailableError,
 		},
 		{
 			err:   DataLossError("some %s", "message"),
-			code:  ErrorCodeDataLoss,
+			code:  connect.CodeDataLoss,
 			check: IsDataLossError,
 		},
 		{
 			err:   UnauthenticatedError("some %s", "message"),
-			code:  ErrorCodeUnauthenticated,
+			code:  connect.CodeUnauthenticated,
 			check: IsUnauthenticatedError,
 		},
 	}
 
 	for _, test := range tests {
-		t.Run(fmt.Sprintf("code_%v", test.code), func(t *testing.T) {
-			assert.Equal(t, test.code, ToErrorCode(test.err))
-			assert.Equal(t, "some message", test.err.Error())
+		t.Run(fmt.Sprintf("%s", test.code), func(t *testing.T) {
+			assert.Equal(t, test.code, test.err.Code())
+			assert.Equal(t, "some message", test.err.Message())
 			assert.False(t, test.check(nil))
+			assert.False(t, test.check(errors.New("other")))
 			assert.True(t, test.check(test.err))
 		})
 	}
