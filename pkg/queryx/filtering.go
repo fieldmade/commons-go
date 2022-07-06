@@ -1,18 +1,24 @@
 package queryx
 
 import (
-	"github.com/fieldmade/commons-go/pkg/errorx"
+	"fmt"
 	"go.einride.tech/aip/filtering"
-	"google.golang.org/genproto/googleapis/api/expr/v1alpha1"
+	expr "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 )
 
-type FilterField struct {
-	Field string
-	Type  *expr.Type
-}
+var (
+	TypeString    = filtering.TypeString
+	TypeInt       = filtering.TypeInt
+	TypeFloat     = filtering.TypeFloat
+	TypeBool      = filtering.TypeBool
+	TypeDuration  = filtering.TypeDuration
+	TypeTimestamp = filtering.TypeTimestamp
+)
+
+type FilterFields map[string]*expr.Type
 
 func filterParsingError(err error) error {
-	return errorx.NewErrIllegalArgument("error parsing filter: %s", err.Error())
+	return fmt.Errorf("error parsing filter: %s", err.Error())
 }
 
 func filterDeclarationOptions(def *QueryDefinition) []filtering.DeclarationOption {
@@ -20,8 +26,8 @@ func filterDeclarationOptions(def *QueryDefinition) []filtering.DeclarationOptio
 		filtering.DeclareStandardFunctions(),
 	}
 
-	for _, field := range def.FilterFields {
-		res = append(res, filtering.DeclareIdent(field.Field, field.Type))
+	for field, fieldType := range def.FilterFields {
+		res = append(res, filtering.DeclareIdent(field, fieldType))
 	}
 
 	return res

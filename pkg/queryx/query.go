@@ -11,12 +11,28 @@ type Query struct {
 	Filter     *filtering.Filter
 }
 
+func (s *Query) GetPage() int32 {
+	if s.Pagination != nil {
+		return s.Pagination.Page
+	} else {
+		return 1
+	}
+}
+
+func (s *Query) GetPageSize() int32 {
+	if s.Pagination != nil {
+		return s.Pagination.PageSize
+	} else {
+		return 10
+	}
+}
+
 type QueryDefinition struct {
 	MaxPage         int32
 	MaxPageSize     int32
 	DefaultPageSize int32
 	OrderFields     []string
-	FilterFields    []*FilterField
+	FilterFields    FilterFields
 }
 
 func (s *QueryDefinition) ParseQuery(req interface{}) (*Query, error) {

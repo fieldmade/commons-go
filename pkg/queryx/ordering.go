@@ -1,12 +1,12 @@
 package queryx
 
 import (
-	"github.com/fieldmade/commons-go/pkg/errorx"
+	"fmt"
 	"go.einride.tech/aip/ordering"
 )
 
 func orderParsingError(err error) error {
-	return errorx.NewErrIllegalArgument("error parsing order: %s", err.Error())
+	return fmt.Errorf("error parsing order: %s", err.Error())
 }
 
 func parseOrderBy(def *QueryDefinition, req ordering.Request) (*ordering.OrderBy, error) {
