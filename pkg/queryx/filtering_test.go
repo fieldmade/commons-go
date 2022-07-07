@@ -2,7 +2,7 @@ package queryx
 
 import (
 	"github.com/stretchr/testify/assert"
-	"go.einride.tech/aip/filtering"
+	expr "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 	"testing"
 )
 
@@ -16,15 +16,9 @@ func (s *mockFilterRequest) GetFilter() string {
 
 func Test_parseFilter(t *testing.T) {
 	def := &QueryDefinition{
-		FilterFields: []*FilterField{
-			{
-				Field: "a",
-				Type:  filtering.TypeString,
-			},
-			{
-				Field: "b",
-				Type:  filtering.TypeInt,
-			},
+		FilterFields: map[string]*expr.Type{
+			"a": TypeString,
+			"b": TypeInt,
 		},
 	}
 
