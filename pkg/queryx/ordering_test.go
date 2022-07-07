@@ -5,24 +5,12 @@ import (
 	"testing"
 )
 
-type mockOrderingRequest struct {
-	orderBy string
-}
-
-func (s *mockOrderingRequest) GetOrderBy() string {
-	return s.orderBy
-}
-
 func Test_parseOrderBy(t *testing.T) {
-	def := &QueryDefinition{
-		OrderFields: []string{"a", "b", "c"},
+	parser := &orderingParser{
+		validFields: []string{"a", "b", "c"},
 	}
 
-	req := &mockOrderingRequest{
-		orderBy: "a asc, b desc, c",
-	}
-
-	orderBy, err := parseOrderByIfNeeded(def, req)
+	orderBy, err := parser.parseOrderBy("a, b asc, c desc")
 
 	assert.NoError(t, err)
 	assert.NotNil(t, orderBy)

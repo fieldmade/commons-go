@@ -6,19 +6,6 @@ import (
 	"testing"
 )
 
-type mockPaginationRequest struct {
-	page     int32
-	pageSize int32
-}
-
-func (s *mockPaginationRequest) GetPage() int32 {
-	return s.page
-}
-
-func (s *mockPaginationRequest) GetPageSize() int32 {
-	return s.pageSize
-}
-
 func Test_buildPagination(t *testing.T) {
 	tests := []struct {
 		page           int32
@@ -52,23 +39,19 @@ func Test_buildPagination(t *testing.T) {
 		},
 	}
 
-	def := &QueryDefinition{
-		DefaultPageSize: 20,
-		MaxPageSize:     100,
+	builder := &paginationBuilder{
+		defaultPageSize: 20,
+		maxPageSize:     100,
 	}
+
+	builder.init()
 
 	for _, test := range tests {
 		name := fmt.Sprintf("page=%v:pageSze=%v", test.page, test.pageSize)
 
 		t.Run(name, func(t *testing.T) {
-			req := &mockPaginationRequest{
-				page:     test.page,
-				pageSize: test.pageSize,
-			}
+			pagination := builder.buildPagination(test.page, test.pageSize)
 
-			pagination, err := buildPaginationIfNeeded(def, req)
-
-			assert.NoError(t, err)
 			assert.NotNil(t, pagination)
 			assert.Equal(t, test.actualPage, pagination.Page)
 			assert.Equal(t, test.actualPageSize, pagination.PageSize)

@@ -7,7 +7,7 @@ import (
 
 type Query struct {
 	Pagination *Pagination
-	OrderBy    *ordering.OrderBy
+	OrderBy    *OrderBy
 	Filter     *filtering.Filter
 }
 
@@ -36,24 +36,61 @@ type QueryDefinition struct {
 }
 
 func (s *QueryDefinition) ParseQuery(req interface{}) (*Query, error) {
-	pagination, err := buildPaginationIfNeeded(s, req)
+	orderBy, err := s.parseOrderByIfNeeded(req)
 	if err != nil {
 		return nil, err
 	}
 
-	orderBy, err := parseOrderByIfNeeded(s, req)
-	if err != nil {
-		return nil, err
-	}
-
-	filter, err := parseFilterIfNeeded(s, req)
+	filter, err := s.parseFilterIfNeeded(req)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Query{
-		Pagination: pagination,
+		Pagination: s.buildPaginationIfNeeded(req),
 		OrderBy:    orderBy,
 		Filter:     filter,
 	}, nil
+}
+
+func (s *QueryDefinition) buildPaginationIfNeeded(req interface{}) *Pagination {
+	typedReq, ok := req.(PaginationRequest)
+	if !ok {
+		return nil
+	}
+
+	builder := paginationBuilder{
+		maxPage:         s.MaxPage,
+		maxPageSize:     s.MaxPageSize,
+		defaultPageSize: s.DefaultPageSize,
+	}
+
+	builder.init()
+	return builder.buildPagination(typedReq.GetPage(), typedReq.GetPageSize())
+}
+
+func (s *QueryDefinition) parseOrderByIfNeeded(req interface{}) (*OrderBy, error) {
+	typedReq, ok := req.(ordering.Request)
+	if !ok {
+		return nil, nil
+	}
+
+	parser := orderingParser{
+		validFields: s.OrderFields,
+	}
+
+	return parser.parseOrderBy(typedReq.GetOrderBy())
+}
+
+func (s *QueryDefinition) parseFilterIfNeeded(req interface{}) (*filtering.Filter, error) {
+	typedReq, ok := req.(filtering.Request)
+	if !ok {
+		return nil, nil
+	}
+
+	parser := filteringParser{
+		fields: s.FilterFields,
+	}
+
+	return parser.parseFilter(typedReq.GetFilter())
 }

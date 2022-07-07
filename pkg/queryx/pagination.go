@@ -12,52 +12,45 @@ type PaginationRequest interface {
 	GetPageSize() int32
 }
 
-func buildPagination(def *QueryDefinition, req PaginationRequest) (*Pagination, error) {
-	maxPage := def.MaxPage
-	if maxPage <= 0 {
-		maxPage = math.MaxInt32
+type paginationBuilder struct {
+	maxPage         int32
+	maxPageSize     int32
+	defaultPageSize int32
+}
+
+func (s *paginationBuilder) init() {
+	if s.maxPage <= 0 {
+		s.maxPage = math.MaxInt32
 	}
 
-	maxPageSize := def.MaxPageSize
-	if maxPageSize <= 0 {
-		maxPageSize = 50
+	if s.maxPageSize <= 0 {
+		s.maxPageSize = 50
 	}
 
-	defaultPageSize := def.DefaultPageSize
-	if defaultPageSize <= 0 {
-		defaultPageSize = 10
+	if s.defaultPageSize <= 0 {
+		s.defaultPageSize = 10
 	}
+}
 
-	page := req.GetPage()
-	pageSize := req.GetPageSize()
-
-	if page > maxPage {
-		page = maxPage
+func (s *paginationBuilder) buildPagination(page, pageSize int32) *Pagination {
+	if page > s.maxPage {
+		page = s.maxPage
 	}
 
 	if page <= 0 {
 		page = 1
 	}
 
-	if pageSize > maxPageSize {
-		pageSize = maxPageSize
+	if pageSize > s.maxPageSize {
+		pageSize = s.maxPageSize
 	}
 
 	if pageSize <= 0 {
-		pageSize = defaultPageSize
+		pageSize = s.defaultPageSize
 	}
 
 	return &Pagination{
 		Page:     page,
 		PageSize: pageSize,
-	}, nil
-}
-
-func buildPaginationIfNeeded(def *QueryDefinition, req interface{}) (*Pagination, error) {
-	typedReq, ok := req.(PaginationRequest)
-	if !ok {
-		return nil, nil
 	}
-
-	return buildPagination(def, typedReq)
 }

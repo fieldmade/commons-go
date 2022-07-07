@@ -2,31 +2,19 @@ package queryx
 
 import (
 	"github.com/stretchr/testify/assert"
-	expr "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
+	"go.einride.tech/aip/filtering"
 	"testing"
 )
 
-type mockFilterRequest struct {
-	filter string
-}
-
-func (s *mockFilterRequest) GetFilter() string {
-	return s.filter
-}
-
 func Test_parseFilter(t *testing.T) {
-	def := &QueryDefinition{
-		FilterFields: map[string]*expr.Type{
-			"a": TypeString,
-			"b": TypeInt,
+	parser := &filteringParser{
+		fields: FilterFields{
+			"a": filtering.TypeString,
+			"b": filtering.TypeInt,
 		},
 	}
 
-	req := &mockFilterRequest{
-		filter: "a = 'one' AND b = 1",
-	}
-
-	filterExpr, err := parseFilterIfNeeded(def, req)
+	filterExpr, err := parser.parseFilter("a = 'one' AND b = 1")
 
 	assert.NoError(t, err)
 	assert.NotNil(t, filterExpr)
