@@ -34,14 +34,13 @@ func (s *jsonCodec) Unmarshal(binary []byte, message any) error {
 	return s.unmarshalOptions.Unmarshal(binary, protoMessage)
 }
 
-func NewJsonCodec() connect.Codec {
+func NewJsonCodec(
+	marshalOptions *protojson.MarshalOptions,
+	unmarshalOptions *protojson.UnmarshalOptions,
+) connect.Codec {
 	return &jsonCodec{
-		marshalOptions: &protojson.MarshalOptions{
-			UseProtoNames: true,
-		},
-		unmarshalOptions: &protojson.UnmarshalOptions{
-			DiscardUnknown: true,
-		},
+		marshalOptions:   marshalOptions,
+		unmarshalOptions: unmarshalOptions,
 	}
 }
 
