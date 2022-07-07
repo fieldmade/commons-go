@@ -5,8 +5,10 @@ import (
 	"github.com/go-rel/rel"
 )
 
+type FieldMap map[string]string
+
 type Transpiler struct {
-	FieldMap map[string]string
+	FieldMap FieldMap
 }
 
 func (s *Transpiler) fieldName(name string) string {
