@@ -16,7 +16,7 @@ type EntityStore[Entity any] struct {
 func (s *EntityStore[Entity]) FindOne(ctx context.Context, filters ...rel.Querier) (*Entity, error) {
 	var res *Entity
 
-	err := s.Repository.Find(ctx, &res, filters...)
+	err := s.Repository.Find(ctx, res, filters...)
 	if errors.Is(err, rel.ErrNotFound) {
 		return nil, nil
 	}
