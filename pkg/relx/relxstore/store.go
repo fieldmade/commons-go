@@ -14,9 +14,9 @@ type EntityStore[Entity any] struct {
 }
 
 func (s *EntityStore[Entity]) FindOne(ctx context.Context, filters ...rel.Querier) (*Entity, error) {
-	var res *Entity
+	var res Entity
 
-	err := s.Repository.Find(ctx, res, filters...)
+	err := s.Repository.Find(ctx, &res, filters...)
 	if errors.Is(err, rel.ErrNotFound) {
 		return nil, nil
 	}
@@ -25,7 +25,7 @@ func (s *EntityStore[Entity]) FindOne(ctx context.Context, filters ...rel.Querie
 		return nil, err
 	}
 
-	return res, nil
+	return &res, nil
 }
 
 func (s *EntityStore[Entity]) FindMany(ctx context.Context, page, pageSize int, filters ...rel.Querier) (*Entities[Entity], error) {
